@@ -11,4 +11,4 @@ devops-key*
 *.env
 *.log
 
-vm-files/
+vm-files
