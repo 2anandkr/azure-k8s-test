@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+  labels:
+    app: hello
+  name: hello
+spec:
+  rules:
+    - host: hello.index-poc.ispgnet.com
+      http:
+        paths:
+          - backend:
+              serviceName: hello
+              servicePort: 80
+  tls:
+    - hosts:
+        - hello.index-poc.ispgnet.com
+      secretName: tls-hello
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: hello
+  name: hello
+spec:
+  ports:
+    - name: http
+      port: 80
+  selector:
+    app: hello
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hello
+  name: hello
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+        - image: mcr.microsoft.com/azuredocs/aks-helloworld:v1
+          imagePullPolicy: Always
+          name: hello
+          ports:
+            - containerPort: 80
+          env:
+          - name: TITLE
+            value: "Index POC Demo Service!"            

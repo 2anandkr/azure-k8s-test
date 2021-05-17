@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: test1-vm1
+  namespace: vm
+spec:
+  addresses:
+  - 10.1.4.4
+  hosts:
+  - test1-vm1.service
+  ports:
+  - name: http
+    number: 80
+    protocol: HTTP

@@ -1,0 +1,12 @@
+_*.auto.tfvars
+_*.sh
+# untrack any folder/file staring with __
+__*
+.terraform
+*.tmp
+.secrets.env
+.credentials
+devops-key*
+
+*.env
+*.log
