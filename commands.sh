@@ -85,7 +85,5 @@ kubectl delete -f $ISTIO_FOLDER/samples/multicluster/expose-istiod.yaml
 istioctl manifest generate | kubectl delete -f -
 kubectl delete namespace istio-system
 
-# windows boot commands
-# from powershell (as administrator) 
-# intall IIS
-Install-WindowsFeature -name Web-Server -IncludeManagementTools
+
+

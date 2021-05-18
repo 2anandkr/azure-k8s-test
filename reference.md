@@ -1,70 +1,87 @@
-# Terraform setup on AKS
+# Azure Infra Setup 
 
+## 1. Login using your subscription account
 ```sh
-# https://docs.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell#authenticate-via-azure-service-principal
-
-# =============================
-# FROM the azure cloud shell
-# =============================
-
-# 1. get the subscription id for the user
+az login
 az account show
-# SUBSCRIPTION_ID=2dc97483-8326-4ca5-86ac-5fffed6bb16a
+```
 
-# 2. create service principal with contributor role (The Contributor role (the default) has full permissions to read and write to an Azure account.)
-az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/$SUBSCRIPTION_ID"
-# ==========================================
-# FROM the azure cloud shell or local shell
-# ==========================================
-
-# https://docs.microsoft.com/en-us/cli/azure/
-
-# 3. Log in using an Azure service principal:
-az login --service-principal -u <service_principal_name> -p "<service_principal_password>" --tenant "<service_principal_tenant>"
-az login --service-principal -u http://azure-cli-2021-04-20-14-27-11 -p "j~kCs4gpGQUhPA~8YUJ_pVAjUY96HII1kX" --tenant "936b1714-3a18-4c25-a00a-ad146eea1cd0"
-
-
-# 3. Create and configure a storage backend
-
+## 2. Create and configure a storage backend for storing remote terraform state
+```sh
 RESOURCE_GROUP_NAME=book-keeping
-STORAGE_ACCOUNT_NAME=tfstateindex01
+STORAGE_ACCOUNT_NAME=tfstateindex001
 CONTAINER_NAME=tfstate
 LOCATION=uaenorth
-KEY_VAULT=index-devops
-KEY_VAULT_SECRET_NAME=terraform-backend-key-poc
-
 # Create resource group
 az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
-
 # Create storage account
 az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
-
 # Get storage account key
 ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
-
 # Create blob container
 az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME --account-key $ACCOUNT_KEY
+```
 
-echo "storage_account_name: $STORAGE_ACCOUNT_NAME"
-echo "container_name: $CONTAINER_NAME"
-echo "access_key: $ACCOUNT_KEY"
-
-# create a key vault to store storage account key
-az keyvault create --name $KEY_VAULT --resource-group $RESOURCE_GROUP_NAME --location $LOCATION
-# Add a secret for storage account key to Key Vault
-az keyvault secret set --vault-name $KEY_VAULT --name $KEY_VAULT_SECRET_NAME --value $ACCOUNT_KEY
-# Create an environment variable named ARM_ACCESS_KEY with the value of the Azure Storage access key.
-export ARM_ACCESS_KEY=$(az keyvault secret show --vault-name $KEY_VAULT --name $KEY_VAULT_SECRET_NAME --query value -o tsv)
-
-
-# 4. azure AD integration with AKS
-
-# create a new Azure AD group for your cluster administrators (from cloud shell as service principal will not have permission)
+## 3. Azure AD integration with AKS 
+```sh
+# create a new Azure AD group for your cluster administrators 
 az ad group create --display-name indexAKSAdminGroup --mail-nickname indexAKSAdminGroup
-  "objectId": "d66d7163-d507-4edf-878c-a2d82ff8f532"
+# add the azure AD user to the group
+az ad group member add --group indexAKSAdminGroup --member-id xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# verify
+az ad group member check --group indexAKSAdminGroup --member-id xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+az ad group member list --group indexAKSAdminGroup
 
+# register the above group and current subscription tenant ID during kubernetes cluster creation in "terraform.tfvars"
+# cluster_azure_ad_groups    = ["xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"]
+# cluster_azure_ad_tenant_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+## 4. Create Azure Infra with terraform(version 0.15 and up)
+```sh
+# configure terraform.tfvars
+# review the infra. plan
+terraform plan
+# create infra. based on the plan
+terraform apply
+# refresh remote state to get the public IPs for VMs
+terraform refresh
+```
+
+## 5 Test your kubernetes cluster access
+```sh
+# get and store cluster credentials to your kube_config
 az aks get-credentials --resource-group index-poc --name index-poc-aks
+# test access. (would be prompted to login to your azure AD; if you are a member of the cluster AD group, the below command should work)
+kubectl get nodes
+```
 
-# destroy specific
-terraform destroy -target=RESOURCE_TYPE.NAME -target=RESOURCE_TYPE2.NAME
+## 6. Boot the cluster and the VMs
+
+```sh
+# The below command (bootstrap the cluster and linux VM):
+# - installs Istio
+# - sets up Istio gateway and services needed for VM integration
+# - generate service account token to use for MTLS 
+# - generate files to be used by VMs to configure their Istio Sidecar
+# - on linux VMs, it syncs the integration files and sets up the Istio Sidecar. 
+# - sets up the test cluster and Istio resources to test the integration
+
+./boot.sh
+
+# login to the Wiindows VM (via any RDP client using the Public IP);
+# from powershell (as administrator) install IIS server (to test service connectivity from the cluster)
+Install-WindowsFeature -name Web-Server -IncludeManagementTools
+
+```
+
+## 7. Test connectivity
+```sh
+
+```
+
+## 8. Delete Azure Resources
+```sh
+terraform destroy
+
 ```
