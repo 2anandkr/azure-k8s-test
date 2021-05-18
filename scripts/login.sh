@@ -11,4 +11,4 @@ else
   VM=$1
 fi
 
-ssh $(vm_ssh_args $VM)
+ssh $(get_vm_ssh_args $VM)

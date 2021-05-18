@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# useful to boot multiple VMs with the VM variable
+# capture arg. to select a particular VM to boot
 if [ -z "$1" ]; then
   VM=0
 else
@@ -45,7 +45,7 @@ istioctl x workload entry configure -f $THIS_DIR/test-3/workloadgroup.yaml -o "v
 echo ""
 echo "install tools in vm..."
 
-ssh $(vm_ssh_args $VM) "$( cat << EOF
+ssh $(get_vm_ssh_args $VM) "$( cat << EOF
 sudo apt-get update && sudo apt-get install -y rsync nginx
 
 EOF
@@ -53,11 +53,11 @@ EOF
 
 echo ""
 echo "transfer files to vm..."
-rsync --verbose  --archive --checksum $THIS_DIR/vm-files/ $(vm_ssh_args $VM):~/vm-files
+rsync --verbose  --archive --checksum $THIS_DIR/vm-files/ $(get_vm_ssh_args $VM):~/vm-files
 
 echo ""
 echo "setup Istio in VM..."
-ssh $(vm_ssh_args $VM) "$( cat << EOF
+ssh $(get_vm_ssh_args $VM) "$( cat << EOF
 
 echo "Install the root certificate at /etc/certs..."
 sudo mkdir -p /etc/certs
