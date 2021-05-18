@@ -6,7 +6,6 @@ __*
 *.tmp
 .secrets.env
 .credentials
-devops-key*
 
 *.env
 *.log

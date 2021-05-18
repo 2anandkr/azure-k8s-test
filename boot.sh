@@ -19,7 +19,7 @@ az aks get-credentials --resource-group index-poc --name index-poc-aks
 echo "install istio operator..."
 istioctl operator init
 
-ISTIO_SETUP==$THIS_DIR/istio-setup
+ISTIO_SETUP=$THIS_DIR/istio-setup
 
 echo ""
 echo "install istio..."

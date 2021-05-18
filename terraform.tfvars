@@ -8,7 +8,7 @@ cluster_vm_size      = "Standard_D2s_v3"
 cluster_vm_min_count = 2
 cluster_vm_max_count = 3
 
-win_vm_count = 1
+win_vm_count = 0
 win_vm_size  = "Standard_D2s_v3"
 win_vm_private_ip = [
   "10.1.4.4",
