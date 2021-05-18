@@ -1,14 +1,14 @@
 location = "uaenorth"
 prefix   = "index-poc"
 
-cluster_azure_ad_groups    = ["d66d7163-d507-4edf-878c-a2d82ff8f532"]
-cluster_azure_ad_tenant_id = "936b1714-3a18-4c25-a00a-ad146eea1cd0"
+cluster_azure_ad_groups    = ["f5519392-20c6-46e8-b8cf-17e5429416f1"]
+cluster_azure_ad_tenant_id = "da264bdd-872b-4789-ae87-52d5cc7f747b"
 
 cluster_vm_size      = "Standard_D2s_v3"
-cluster_vm_min_count = 2
+cluster_vm_min_count = 3
 cluster_vm_max_count = 3
 
-win_vm_count = 0
+win_vm_count = 1
 win_vm_size  = "Standard_D2s_v3"
 win_vm_private_ip = [
   "10.1.4.4",
