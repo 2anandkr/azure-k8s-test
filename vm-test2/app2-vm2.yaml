@@ -5,7 +5,7 @@ metadata:
   name: test2-app2-vm2
 spec:
   serviceAccount: vm-access
-  address: 10.1.4.4
+  address: 10.1.4.100
   labels:
     app: test2-app2
 
