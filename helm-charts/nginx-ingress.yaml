@@ -9,12 +9,13 @@ controller:
     patch:
       nodeSelector:
         beta.kubernetes.io/os: linux         
-  # service:
+  service:
     # to enable client source IP preservation for requests to containers in your cluster.
     # The IP is stored in the request header under X-Forwarded-For. When using an ingress
     # controller with client source IP preservation enabled, TLS pass-through will not work.
     # externalTrafficPolicy: Local
     # static IP config
-    # loadBalancerIP: 
-    # annotations:
-    #   service.beta.kubernetes.io/azure-dns-label-name: DNS_LABEL
+    loadBalancerIP: 20.74.129.121
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-resource-group: book-keeping
+      service.beta.kubernetes.io/azure-dns-label-name: index-poc

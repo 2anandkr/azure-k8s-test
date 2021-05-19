@@ -1,13 +1,13 @@
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
-  name: test1-vm2
+  name: test1-app2-vm2
   namespace: vm
 spec:
   addresses:
   - 10.1.4.100
   hosts:
-  - test1-vm2.service
+  - test1-app2.service
   ports:
   - name: http
     number: 80

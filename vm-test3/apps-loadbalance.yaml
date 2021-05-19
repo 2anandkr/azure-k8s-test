@@ -3,36 +3,36 @@ apiVersion: networking.istio.io/v1alpha3
 kind: WorkloadEntry
 metadata:
   namespace: vm
-  name: test3-legacy-vm1
+  name: test3-app1-vm1-lb
 spec:
   # serviceAccount: vm-access
   address: 10.1.4.4
   labels:
-    app: test3
+    app: test3-apps
 
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: WorkloadEntry
 metadata:
   namespace: vm
-  name: test3-legacy-vm2
+  name: test3-app2-vm2-lb
 spec:
   serviceAccount: vm-access # traffic over mtls
   address: 10.1.4.100
   labels:
-    app: test3
+    app: test3-apps
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   namespace: vm
-  name: test3
+  name: test3-apps
   labels:
-    app: test3
+    app: test3-apps
 spec:
   ports:
   - port: 80
     name: http
   selector:
-    app: test3
+    app: test3-apps

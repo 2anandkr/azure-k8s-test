@@ -47,3 +47,8 @@ resource "azurerm_subnet" "subnet_2" {
   resource_group_name  = azurerm_resource_group.rg.name
   address_prefixes     = ["10.1.4.0/22"] // 10.2.0.0/22 overlaps VNET range
 }
+
+data "azurerm_public_ip" "cluster_loadbalancer_ip" {
+  name                = "indexAKSPublicIP"
+  resource_group_name = var.secondary_resource_group
+}

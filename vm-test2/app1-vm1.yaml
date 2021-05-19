@@ -2,23 +2,22 @@ apiVersion: networking.istio.io/v1alpha3
 kind: WorkloadEntry
 metadata:
   namespace: vm
-  name: legacy-2-vm-1
+  name: test2-app1-vm1
 spec:
-  # serviceAccount: vm-access
-  address: 10.1.4.5
+  serviceAccount: vm-access
+  address: 10.1.4.4
   labels:
-    app: legacy-2
-    instance-id: vm1
+    app: test2-app1
 
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
   namespace: vm
-  name: legacy-2
+  name: test2-app1
 spec:
   hosts:
-  - legacy-2.service
+  - test2-app1.service
   location: MESH_INTERNAL
   ports:
   - number: 80
@@ -28,4 +27,4 @@ spec:
   resolution: STATIC
   workloadSelector:
     labels:
-      app: legacy-2
+      app: test2-app1

@@ -65,4 +65,8 @@ variable linux_vm_private_ip {
   description = "list of private IPs to allocate to each linux VM"
 }
 
+variable secondary_resource_group {
+  type        = string  
+  description = "secondary resource group used for storing book-keeping resources"
+}
 

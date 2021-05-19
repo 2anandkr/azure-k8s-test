@@ -12,14 +12,14 @@ THIS_DIR=$(dirname "$0")
 # load reusabe functions
 source $THIS_DIR/scripts/utility_functions.sh
 
+ISTIO_SETUP=$THIS_DIR/istio-setup
+
 echo ""
 echo "authorize cluster access..."
 az aks get-credentials --resource-group index-poc --name index-poc-aks
 
 echo "install istio operator..."
 istioctl operator init
-
-ISTIO_SETUP=$THIS_DIR/istio-setup
 
 echo ""
 echo "install istio..."
@@ -40,7 +40,7 @@ kubectl create serviceaccount vm-access -n vm
 
 echo ""
 echo "generate files for vm..."
-istioctl x workload entry configure -f $THIS_DIR/test-3/workloadgroup.yaml -o "vm-files" --clusterID "Kubernetes"
+istioctl x workload entry configure -f $THIS_DIR/vm-test3/app2-workloadgroup.yaml -o "vm-files" --clusterID "Kubernetes"
 
 echo ""
 echo "install tools in vm..."
@@ -53,7 +53,7 @@ EOF
 
 echo ""
 echo "transfer files to vm..."
-rsync --verbose  --archive --checksum $THIS_DIR/vm-files/ $(get_vm_ssh_args $VM):~/vm-files
+rsync --verbose  --archive --checksum -e "ssh $(ssh_options)" $THIS_DIR/vm-files/ $(get_vm_ssh_args $VM):~/vm-files
 
 echo ""
 echo "setup Istio in VM..."
@@ -94,9 +94,49 @@ sudo systemctl start istio
 EOF
 )"
 
+# echo ""
+# echo "setup nginx ingress..."
+# kubectl create ns nginx
+# helm install nginx-ingress ingress-nginx/ingress-nginx -n nginx -f $THIS_DIR/helm-charts/nginx-ingress.yaml
+
+# echo ""
+# echo "setup cert-manager..."
+# kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
+# echo "create certificate issuer..."
+# kubectl apply -f $THIS_DIR/certificate-issuer/letsencrypt-prod.yaml
+
 echo ""
-echo "create VM workload binding and service association..."
-kubectl apply -f $THIS_DIR/test-3/vm-binding.yaml
+echo "setup observability..."
+echo ""
+
+echo "install kiali..."
+helm install \
+  --namespace istio-system \
+  --set auth.strategy="anonymous" \
+  --repo https://kiali.org/helm-charts \
+  kiali-server \
+  kiali-server
+  
+echo "install prometheus..."
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.9/samples/addons/prometheus.yaml
+
+# echo ""
+# echo "install a test app over nginx ingress (with auto certificate generation) " 
+# kubectl apply -f $THIS_DIR/apps/hello.yaml
+
+echo ""
+echo "test1: create service entry for VMs..."
+kubectl apply -f $THIS_DIR/vm-test1
+echo ""
+
+echo "test2: create VM workload binding and service entry association..."
+kubectl apply -f $THIS_DIR/vm-test2
+echo ""
+
+echo "test3: create VM workload binding and service association..."
+kubectl apply -f $THIS_DIR/vm-test3/app1-vm1.yaml
+kubectl apply -f $THIS_DIR/vm-test3/app2-vm2.yaml
+kubectl apply -f $THIS_DIR/vm-test3/apps-loadbalance.yaml
 
 echo ""
 echo "setup test app in cluster..."

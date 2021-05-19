@@ -1,4 +1,6 @@
-# nginx ingress with AWS NLB
+# Tryout
+
+# nginx ingress 
 kubectl create ns nginx
 helm install nginx-ingress ingress-nginx/ingress-nginx -n nginx -f ./helm-charts/nginx-ingress.yaml
 
@@ -9,6 +11,8 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1
 # create issuer
 kubectl apply -f ./certificate-issuer/letsencrypt-prod.yaml
 
+# test ingress with certs
+kubectl apply -f $THIS_DIR/apps/hello.yaml
 
 # istio
 istioctl operator init
@@ -18,7 +22,6 @@ istioctl install -f istio-config.yaml --set values.pilot.env.PILOT_ENABLE_WORKLO
 
 
 ISTIO_FOLDER=../istio-1.9.4
-
 
 # SINGLE NETWORK
 # ========================
@@ -70,20 +73,30 @@ sudo systemctl start istio
 
 # test apps
 # in the cluster
-kubectl create namespace sample
 
 kubectl label namespace default istio-injection=enabled
 kubectl apply -f apps/helloworld.yaml
 
 # from vm
-curl helloworld.sample.svc:5000/hello
+curl helloworld.default.svc:5000/hello
 
-kubectl exec $(kubectl get pod -l app=helloworld -o jsonpath={.items..metadata.name} | cut -d' ' -f1) -c helloworld -- curl mysql.vm.svc.cluster.local:3306
+kubectl exec $(kubectl get pod -l app=helloworld -o jsonpath={.items..metadata.name} | cut -d' ' -f1) -c helloworld -- curl test3.vm.svc.cluster.local:80
 
 # remove istio in cluster
-kubectl delete -f $ISTIO_FOLDER/samples/multicluster/expose-istiod.yaml
+kubectl delete -f istio-setup/expose-istiod.yaml
 istioctl manifest generate | kubectl delete -f -
 kubectl delete namespace istio-system
 
+kubectl delete -f apps/helloworld.yaml
+
+tail -f /var/log/istio/istio.log
 
 
+helm install \
+  --namespace istio-system \
+  --set auth.strategy="anonymous" \
+  --repo https://kiali.org/helm-charts \
+  kiali-server \
+  kiali-server
+
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.9/samples/addons/prometheus.yaml

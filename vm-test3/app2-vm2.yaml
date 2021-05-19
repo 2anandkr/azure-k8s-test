@@ -1,0 +1,26 @@
+
+apiVersion: networking.istio.io/v1alpha3
+kind: WorkloadEntry
+metadata:
+  namespace: vm
+  name: test3-app2-vm2
+spec:
+  serviceAccount: vm-access
+  address: 10.1.4.100
+  labels:
+    app: test3-app2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: vm
+  name: test3-app2
+  labels:
+    app: test3-app2
+spec:
+  ports:
+  - port: 80
+    name: http
+  selector:
+    app: test3-app2

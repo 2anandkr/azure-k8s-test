@@ -1,0 +1,11 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: WorkloadGroup
+metadata:
+  name: test3-app2
+  namespace: vm
+spec:
+  metadata:
+    labels:
+      app: test3-app2
+  template:
+    serviceAccount: vm-access

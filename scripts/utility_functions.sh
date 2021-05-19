@@ -3,8 +3,9 @@ function get_user() {
 }
 
 function ssh_options() {
-  echo " -i tester_key -o StrictHostKeyChecking=no" 
+  echo " -i ./tester_key" 
 }
+export -f ssh_options
 
 function get_vm_ssh_args() {
   if [ -z "$1" ]; then
@@ -14,5 +15,4 @@ function get_vm_ssh_args() {
   fi
   eval echo "$(ssh_options) $(get_user)@$(terraform output -json public_ip_linux | jq .[$VM])"
 }
-
 export -f get_vm_ssh_args

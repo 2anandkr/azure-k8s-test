@@ -1,3 +1,6 @@
+output "cluster_loadbalancer_ip" {
+  value = data.azurerm_public_ip.cluster_loadbalancer_ip.ip_address
+}
 
 output "kube_config" {
   value = azurerm_kubernetes_cluster.cluster.kube_config_raw
