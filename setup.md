@@ -1,5 +1,7 @@
 # Azure Infra Setup 
 
+**`Required Tooling`: azure cli, terraform(0.15+), kubectl(1.18.8+), helm 3, istioctl(tested with 1.9.4), jq**
+
 ## 1. Login using your subscription account
 ```sh
 az login
@@ -43,7 +45,7 @@ az ad group member list --group indexAKSAdminGroup
 # cluster_azure_ad_tenant_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
-## 4. Create Azure Infra with terraform(version 0.15 and up)
+## 4. Create Azure Infra with terraform
 ```sh
 # configure terraform.tfvars
 # review the infra. plan

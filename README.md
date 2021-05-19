@@ -106,7 +106,7 @@ test3-apps.vm.svc
 ### Send traffic from cluster to VM endpoints
 ```sh
 # curl any above test endpoint from inside a cluster pod
-kubectl exec $(kubectl get pod -l app=helloworld -o jsonpath={.items..metadata.name} | cut -d' ' -f1) -c helloworld -- curl test3.vm.svc:80
+kubectl exec $(kubectl get pod -l app=helloworld -o jsonpath={.items..metadata.name} | cut -d' ' -f1) -c helloworld -- curl test3-apps.vm.svc
 ```
 
 ### Send traffic from Linux VM cluster
